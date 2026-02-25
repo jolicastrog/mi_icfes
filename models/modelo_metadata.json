@@ -1,0 +1,110 @@
+{
+  "version": "prototipo_v1.0",
+  "tipo": "RandomForestRegressor",
+  "nota": "Modelo prototipo con datos sintéticos. Reemplazar con modelo entrenado en datos reales del ICFES.",
+  "features": [
+    "FAMI_ESTRATOVIVIENDA",
+    "FAMI_EDUCACIONPADRE",
+    "FAMI_EDUCACIONMADRE",
+    "FAMI_TIENEINTERNET",
+    "FAMI_TIENECOMPUTADOR",
+    "ESTU_HORASSEMANATRABAJA",
+    "COLE_NATURALEZA",
+    "COLE_AREA_UBICACION",
+    "ESTU_GENERO",
+    "FAMI_CUARTOSHOGAR",
+    "FAMI_NUMLIBROS",
+    "COLE_DEPTO_UBICACION"
+  ],
+  "cat_cols": [
+    "FAMI_EDUCACIONPADRE",
+    "FAMI_EDUCACIONMADRE",
+    "FAMI_TIENEINTERNET",
+    "FAMI_TIENECOMPUTADOR",
+    "COLE_NATURALEZA",
+    "COLE_AREA_UBICACION",
+    "ESTU_GENERO",
+    "FAMI_NUMLIBROS",
+    "COLE_DEPTO_UBICACION"
+  ],
+  "num_cols": [
+    "FAMI_ESTRATOVIVIENDA",
+    "ESTU_HORASSEMANATRABAJA",
+    "FAMI_CUARTOSHOGAR"
+  ],
+  "target": "PUNT_GLOBAL",
+  "rango_target": [
+    100,
+    500
+  ],
+  "metricas_prototipo": {
+    "MAE_train": 12.34,
+    "MAE_crossval": 20.37,
+    "R2_train": 0.7678
+  },
+  "categorias_validas": {
+    "FAMI_EDUCACIONPADRE": [
+      "Ninguno",
+      "Primaria",
+      "Secundaria",
+      "Técnico",
+      "Universidad",
+      "Postgrado"
+    ],
+    "FAMI_EDUCACIONMADRE": [
+      "Ninguno",
+      "Primaria",
+      "Secundaria",
+      "Técnico",
+      "Universidad",
+      "Postgrado"
+    ],
+    "FAMI_TIENEINTERNET": [
+      "Si",
+      "No"
+    ],
+    "FAMI_TIENECOMPUTADOR": [
+      "Si",
+      "No"
+    ],
+    "COLE_NATURALEZA": [
+      "Oficial",
+      "No Oficial"
+    ],
+    "COLE_AREA_UBICACION": [
+      "Urbana",
+      "Rural"
+    ],
+    "ESTU_GENERO": [
+      "F",
+      "M"
+    ],
+    "FAMI_NUMLIBROS": [
+      "0 a 10",
+      "11 a 25",
+      "26 a 100",
+      "Más de 100"
+    ],
+    "FAMI_ESTRATOVIVIENDA": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ESTU_HORASSEMANATRABAJA": [
+      0,
+      5,
+      15,
+      25
+    ],
+    "FAMI_CUARTOSHOGAR": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+}
