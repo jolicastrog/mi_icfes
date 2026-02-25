@@ -1,0 +1,185 @@
+@startuml MI_ICFES_Arquitectura
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam ArrowColor #003087
+skinparam ArrowThickness 1.5
+skinparam shadowing false
+
+skinparam component {
+  BackgroundColor #EEF3FF
+  BorderColor #003087
+  FontColor #1A1208
+  BorderThickness 1.5
+}
+skinparam node {
+  BackgroundColor #F8F8F8
+  BorderColor #6B7280
+  BorderThickness 1.5
+}
+skinparam database {
+  BackgroundColor #E8F7F2
+  BorderColor #0A7A55
+}
+skinparam note {
+  BackgroundColor #FFFDE8
+  BorderColor #F5C518
+}
+
+title <b>MI ICFES — Arquitectura de Solución</b>\nPlataforma PWA de Predicción Saber 11 — 2026
+
+' ═══════════════════════════════════════
+' CAPA 0: ORIGEN DE DATOS
+' ═══════════════════════════════════════
+package "CAPA 0: ORIGEN DE DATOS" #E8F7F2 {
+  node "datos.gov.co\n(Gobierno Colombia)" as gov {
+    database "CSV ICFES\nResultados Saber 11\n~500K–1.2M registros\nActualización: semestral" as csv
+  }
+}
+
+' ═══════════════════════════════════════
+' CAPA 1: CIENCIA DE DATOS (LOCAL)
+' ═══════════════════════════════════════
+package "CAPA 1: CIENCIA DE DATOS  (Entorno Local — Equipo ML)" #FFF3E8 {
+  node "Jupyter / VSCode\n(Python 3.11)" as ml_local {
+    component "pandas\nEDA + Limpieza\n+ Selección 12 vars" as pandas
+    component "sklearn Pipeline\nOrdinalEncoder\n+ XGBoost / RF" as pipeline
+    component "joblib.dump()" as joblib
+    database "modelo_icfes.pkl\n(Pipeline serializado\n~5–15 MB)" as pkl
+    database "modelo_metadata.json\n(features + categorías)" as meta
+    database "datos_resumen_icfes.csv\n(Promedios por municipio\n< 500 KB)" as csv_resumen
+  }
+}
+
+' ═══════════════════════════════════════
+' CAPA 2: BACKEND STREAMLIT
+' ═══════════════════════════════════════
+package "CAPA 2: BACKEND  (Streamlit Community Cloud)" #EEF3FF {
+  node "Streamlit Server\nPython 3.11 | 1 GB RAM" as cloud {
+    component "app.py\nOrquestador\nStreamlit" as app
+    component "01_simulador.py\nFormulario 9 preguntas\n+ Validación metadata.json" as simulador
+    component "inference.py\njoblib.load(pkl)\nPredicción < 50ms" as inference
+    component "langchain_advisor.py\nLLMChain + PromptTemplate\nAsesor Prescriptivo" as langchain
+    component "pandas_agent.py\nDataFrame Agent\nChat Conversacional" as agent
+    component "02_consejero.py\nChat UI\nLangChain" as consejero
+    component "03_observatorio.py\nPlotly Charts\n+ Power BI iframe" as observatorio
+    component "04_mi_plan.py\nPlan Acción\n+ Share WhatsApp" as plan
+  }
+}
+
+' ═══════════════════════════════════════
+' CAPA 3: IA GENERATIVA
+' ═══════════════════════════════════════
+package "CAPA 3: IA GENERATIVA  (API Externa)" #FFF0F1 {
+  node "OpenAI / Llama 3\n(LLM Provider)" as llm_node {
+    component "GPT-4o / GPT-4o-mini\nGeneración lenguaje natural\nEspañol colombiano" as llm
+  }
+}
+
+' ═══════════════════════════════════════
+' CAPA 4: ANALYTICS BI
+' ═══════════════════════════════════════
+package "CAPA 4: ANALYTICS BI  (Power BI Service)" #FFF8E8 {
+  node "Power BI Service\n(Microsoft)" as pbi_node {
+    component "Reporte Público\nObservatorio Regional\nMapa Colombia + Tendencias" as pbi
+  }
+}
+
+' ═══════════════════════════════════════
+' CAPA 5: FRONTEND PWA
+' ═══════════════════════════════════════
+package "CAPA 5: FRONTEND PWA  (Dispositivo del Estudiante)" #E8F7F2 {
+  node "Android / iOS\nChrome 80+ / Safari 16.4+" as device {
+    component "PWA Instalada\nStreamlit UI Renderizado\nVelocímetro + Barras + Semáforo" as browser
+    database "LocalStorage\nPredicción guardada\nPlan de acción offline" as local
+    component "Service Worker\nCache-First Strategy\nCSS + JS + Iconos" as sw
+  }
+}
+
+' ═══════════════════════════════════════
+' RELACIONES — CAPA 0 → CAPA 1
+' ═══════════════════════════════════════
+csv -down-> pandas : "Descarga única\nEquipo ML (solo lectura)"
+
+' CAPA 1 interna
+pandas -down-> pipeline : "X_train (12 features)\ny_train (PUNT_GLOBAL)"
+pipeline -down-> joblib : "Pipeline entrenado\nMAE < 20 pts"
+joblib -right-> pkl : "Serializar"
+joblib -right-> meta : "Metadata\nfeatures + categorías"
+pandas -right-> csv_resumen : "Agregar promedios\npor municipio/depto"
+
+' ═══════════════════════════════════════
+' RELACIONES — CAPA 1 → CAPA 2
+' ═══════════════════════════════════════
+pkl -down-> cloud : "<b>Git push → Deploy</b>\n(ÚNICO artefacto ML→Prod)"
+meta -down-> cloud : "Git push"
+csv_resumen -down-> cloud : "Git push"
+
+' CAPA 2 interna
+app -down-> simulador
+app -down-> consejero
+app -down-> observatorio
+app -down-> plan
+simulador -right-> inference : "dict 12 vars\n(form data)"
+inference -right-> langchain : "score + top3 features\n(feature_importances_)"
+langchain -right-> agent
+consejero -up-> agent : "NLQ del estudiante"
+
+' ═══════════════════════════════════════
+' RELACIONES — CAPA 2 → CAPA 3
+' ═══════════════════════════════════════
+langchain -down-> llm_node : "HTTPS POST\nPrompt + variables críticas\n~500 tokens"
+llm_node -up-> langchain : "3 recomendaciones\npersonalizadas\n~200 tokens / 2-5 seg"
+agent -down-> llm_node : "Consultas NLQ\nsobre CSV resumido"
+
+' ═══════════════════════════════════════
+' RELACIONES — CAPA 2 → CAPA 4
+' ═══════════════════════════════════════
+observatorio -right-> pbi_node : "iframe embed\ntoken público\nsin licencia Pro"
+
+' ═══════════════════════════════════════
+' RELACIONES — CAPA 2 → CAPA 5
+' ═══════════════════════════════════════
+cloud -down-> device : "<b>HTTPS / WebSocket</b>\nStreamlit protocol\nHTML + Plotly + CSS"
+device -up-> cloud : "Form data\n(JSON 12 vars)"
+browser -right-> local : "Guardar predicción\n+ plan offline"
+sw -up-> browser : "Recursos cacheados\n(sin internet)"
+
+' ═══════════════════════════════════════
+' NOTAS
+' ═══════════════════════════════════════
+note right of pkl
+  <b>Frontera ML ↔ Producción</b>
+  El CSV de datos.gov.co
+  NUNCA sale del entorno
+  de entrenamiento.
+  Solo el .pkl cruza la
+  frontera hacia producción.
+end note
+
+note right of local
+  <b>Disponible sin internet:</b>
+  ✓ Última predicción
+  ✓ Plan de 8 semanas
+  ✓ Recomendaciones LangChain
+  ✗ Nueva predicción (requiere server)
+  ✗ Nuevo chat IA (requiere LLM API)
+end note
+
+note bottom of llm_node
+  <b>Estrategia de costos:</b>
+  Dev/Demo: GPT-4o-mini
+  (~$2 USD/mes estimado)
+  Presentación final: GPT-4o
+  Alternativa gratuita: Llama 3.1
+end note
+
+note bottom of cloud
+  <b>Despliegue:</b>
+  Principal: Streamlit Community Cloud (gratis)
+  Backup: Hugging Face Spaces (gratis, +RAM)
+  CI/CD: GitHub Actions (auto-redeploy en push)
+end note
+
+@enduml
