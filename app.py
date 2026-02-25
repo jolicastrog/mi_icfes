@@ -1,90 +1,68 @@
 """
-MI ICFES — Plataforma PWA de Predicción Saber 11
-app.py — Punto de entrada principal
-Sprint 1 — HU-02: Estructura base Streamlit
+MI ICFES — app.py
+Sprint 1 - HU-01: App base con navegacion y session state
 """
-
 import streamlit as st
-import joblib
-import json
-import os
-
-# ── Configuración de página ─────────────────────────────────
+import joblib, json, os
+ 
 st.set_page_config(
     page_title="MI ICFES",
-    page_icon="🎓",
+    page_icon="\U0001F393",
     layout="centered",
     initial_sidebar_state="collapsed",
-    menu_items={
-        "Get Help": None,
-        "Report a bug": None,
-        "About": "MI ICFES v0.1 — Simulador inteligente Saber 11 🇨🇴"
-    }
 )
-
-# ── CSS personalizado para móvil ────────────────────────────
+ 
+# CSS: tema azul, movil-first, ocultar menu de Streamlit
 st.markdown("""
 <style>
-    .block-container { max-width: 430px; padding-top: 2rem; }
-    .stButton > button { border-radius: 12px; font-weight: 600; }
-    #MainMenu { visibility: hidden; }
-    footer { visibility: hidden; }
+  .block-container { max-width:430px; padding-top:1.5rem; }
+  [data-testid="stSidebar"] { background-color:#003087; }
+  [data-testid="stSidebar"] .stMarkdown, 
+  [data-testid="stSidebar"] .stRadio label { color:#FFFFFF !important; }
+  .stButton > button { border-radius:12px; font-weight:600; }
+  .stButton > button[kind="primary"] { background:#003087; }
+  .metric-container { border-radius:10px; padding:8px; }
+  #MainMenu, footer, header { visibility:hidden; }
 </style>
 """, unsafe_allow_html=True)
-
-
-# ── Carga del modelo (una sola vez, en caché) ───────────────
+ 
+# ── Cargar modelo una sola vez ──────────────────────────
 @st.cache_resource
 def cargar_modelo():
-    """Carga el pipeline .pkl y el metadata.json al iniciar."""
-    pkl_path  = "models/modelo_icfes_prototipo.pkl"
-    meta_path = "models/modelo_metadata.json"
-
-    if not os.path.exists(pkl_path):
-        st.error("❌ No se encontró el modelo. Verifica que modelo_icfes_prototipo.pkl esté en models/")
+    pkl  = "models/modelo_icfes_prototipo.pkl"
+    meta = "models/modelo_metadata.json"
+    if not os.path.exists(pkl):
+        st.error("No se encontro el .pkl en models/")
         st.stop()
-
-    pipeline = joblib.load(pkl_path)
-
-    with open(meta_path, "r", encoding="utf-8") as f:
+    pipeline = joblib.load(pkl)
+    with open(meta, "r", encoding="utf-8") as f:
         metadata = json.load(f)
-
     return pipeline, metadata
-
-
+ 
 pipeline, metadata = cargar_modelo()
-
-# Disponible para todas las páginas vía session_state
 st.session_state["pipeline"] = pipeline
 st.session_state["metadata"] = metadata
-
-# ── Pantalla de bienvenida ──────────────────────────────────
-st.markdown("## 🎓 MI ICFES")
-st.markdown("### Tu asesor inteligente para el Saber 11")
+ 
+# ── Pagina de inicio ────────────────────────────────────
+st.markdown("## \U0001F393 MI ICFES")
+st.markdown("**Tu asesor inteligente para el Saber 11**")
 st.markdown("---")
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Estudiantes/año", "600K", "Colombia")
-with col2:
-    st.metric("Promedio nacional", "259", "pts")
-with col3:
-    st.metric("Error del modelo", "±20", "pts MAE")
-
+ 
+c1,c2,c3 = st.columns(3)
+c1.metric("Estudiantes/ano", "600K", "Colombia")
+c2.metric("Promedio nacional", "259", "pts")
+c3.metric("Error del modelo", "+/-20", "pts")
+ 
 st.markdown("---")
-st.markdown("""
-**¿Cómo funciona?**
-1. 📝 Respondes 9 preguntas sobre tu contexto (menos de 2 min)
-2. 🤖 La IA predice tu puntaje Saber 11
-3. 📊 Ves tu posición frente a otros colegios de tu región
-4. 💡 Recibes un plan de acción personalizado
-""")
-
+st.info("Responde 9 preguntas en menos de 2 minutos y descubre tu puntaje estimado Saber 11 con inteligencia artificial.", icon="\U0001F4A1")
+ 
+col_a, col_b = st.columns(2)
+with col_a:
+    if st.button("\U0001F4DD Hacer simulacion", type="primary", use_container_width=True):
+        st.switch_page("pages/01_simulador.py")
+with col_b:
+    if st.button("\U0001F4CA Ver Observatorio", use_container_width=True):
+        st.switch_page("pages/03_observatorio.py")
+ 
 st.markdown("---")
-
-if st.button("🚀 Iniciar simulador", type="primary", use_container_width=True):
-    st.switch_page("pages/01_simulador.py")
-
-st.markdown("---")
-st.caption("⚠️ Modelo prototipo v0.1 — En espera del modelo definitivo del equipo ML")
-st.caption(f"Pipeline cargado: {type(pipeline.named_steps.get('model', pipeline)).__name__}")
+st.caption(f"Modelo: {type(pipeline).__name__} | v0.1 prototipo")

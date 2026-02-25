@@ -4,7 +4,9 @@ streamlit==1.35.0
 
 # === MACHINE LEARNING ===
 scikit-learn==1.4.2
-xgboost==2.0.3
+
+#instalar al principio--> pip install xgboost==2.0.3 --default-timeout=1000
+#xgboost==2.0.3  
 pandas==2.2.2
 numpy==1.26.4
 joblib==1.4.2
