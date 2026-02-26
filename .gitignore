@@ -214,3 +214,6 @@ __pycache__/
 *.pyc
 data/icfes_raw.csv
 .env
+
+# Claude Code
+.claude/
