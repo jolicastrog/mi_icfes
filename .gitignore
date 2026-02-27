@@ -205,3 +205,15 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+#jlcastrog
+.streamlit/secrets.toml
+venv/
+__pycache__/
+*.pkl
+*.pyc
+data/icfes_raw.csv
+.env
+
+# Claude Code
+.claude/
