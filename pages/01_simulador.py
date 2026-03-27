@@ -12,12 +12,13 @@ from ai.langchain_advisor import generar_consejo
 # LISTA DE FEATURES — debe coincidir exactamente con el .pkl
 # ================================================================
 FEATURES = [
-    "FAMI_ESTRATOVIVIENDA", "FAMI_TIENEINTERNET", "FAMI_TIENECOMPUTADOR",
-    "FAMI_EDUCACIONPADRE",  "FAMI_EDUCACIONMADRE", "ESTU_HORASSEMANATRABAJA",
-    "COLE_NATURALEZA", "COLE_AREA_UBICACION", "ESTU_GENERO",
-    "FAMI_CUARTOSHOGAR", "FAMI_NUMLIBROS", "COLE_DEPTO_UBICACION",
+    # Categoricas primero (como las proceso el OrdinalEncoder)
+    "FAMI_TIENEINTERNET", "FAMI_TIENECOMPUTADOR", "FAMI_EDUCACIONPADRE",
+    "FAMI_EDUCACIONMADRE", "COLE_NATURALEZA", "COLE_AREA_UBICACION",
+    "ESTU_GENERO", "FAMI_NUMLIBROS", "COLE_DEPTO_UBICACION",
+    # Numericas al final (passthrough)
+    "FAMI_ESTRATOVIVIENDA", "ESTU_HORASSEMANATRABAJA", "FAMI_CUARTOSHOGAR",
 ]
-
  
 st.markdown("## \U0001F4DD Simulador ICFES")
 st.markdown("Responde las preguntas sobre tu contexto para predecir tu puntaje.")
@@ -109,6 +110,10 @@ if submitted:
  
         # --- 3. Crear DataFrame de 1 fila x 12 columnas ---
         df_entrada = pd.DataFrame([form_data])
+        
+        # --- 3. Crear DataFrame de 1 fila x 12 columnas ---
+        df_entrada = pd.DataFrame([form_data])
+        df_entrada = df_entrada[FEATURES]  # Garantiza el orden exacto que espera el .pkl
  
         # --- 4. Prediccion con el pipeline del .pkl ---
         pipeline = st.session_state["pipeline"]

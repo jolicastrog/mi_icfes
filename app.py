@@ -4,13 +4,29 @@ Sprint 1 - HU-01: App base con navegacion y session state
 """
 import streamlit as st
 import joblib, json, os
- 
+import streamlit.components.v1 as components
+
 st.set_page_config(
     page_title="MI ICFES",
     page_icon="\U0001F393",
     layout="centered",
     initial_sidebar_state="collapsed",
 )
+
+def activar_pwa():
+    components.html("""
+    <link rel="manifest" href="/app/static/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/app/static/sw.js')
+                .then(() => console.log('SW registrado'))
+                .catch(e => console.log('SW error:', e));
+        }
+    </script>
+    """, height=0)
+
+activar_pwa()
+
  
 # CSS: tema azul, movil-first, ocultar menu de Streamlit
 st.markdown("""
