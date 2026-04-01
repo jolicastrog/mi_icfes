@@ -30,9 +30,9 @@ def crear_gauge(score: float) -> go.Figure:
             "reference": 259,
             "increasing": {"color": "#059669"},
             "decreasing": {"color": "#DC2626"},
-            "valueformat": "+.0f",
+            "valueformat": "+.1f",
             "suffix": " vs promedio",
-        },
+            },
         gauge={
             "axis": {
                 "range": [0, 500],

@@ -117,7 +117,7 @@ if submitted:
  
         # --- 4. Prediccion con el pipeline del .pkl ---
         pipeline = st.session_state["pipeline"]
-        score = float(pipeline.predict(df_entrada)[0])
+        score = round(float(pipeline.predict(df_entrada)[0]), 2)
         score = max(0.0, min(500.0, score))  # Clamp al rango valido
  
         # --- 5. Categoria del resultado ---

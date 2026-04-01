@@ -32,9 +32,6 @@ activar_pwa()
 st.markdown("""
 <style>
   .block-container { max-width:430px; padding-top:1.5rem; }
-  [data-testid="stSidebar"] { background-color:#003087; }
-  [data-testid="stSidebar"] .stMarkdown, 
-  [data-testid="stSidebar"] .stRadio label { color:#FFFFFF !important; }
   .stButton > button { border-radius:12px; font-weight:600; }
   .stButton > button[kind="primary"] { background:#003087; }
   .metric-container { border-radius:10px; padding:8px; }
@@ -81,4 +78,4 @@ with col_b:
         st.switch_page("pages/03_observatorio.py")
  
 st.markdown("---")
-st.caption(f"Modelo: {type(pipeline).__name__} | v0.1 prototipo")
+st.caption("Modelo: MI ICFES | v0.1 prototipo")
